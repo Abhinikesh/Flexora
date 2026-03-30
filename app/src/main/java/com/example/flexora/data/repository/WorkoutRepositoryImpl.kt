@@ -23,6 +23,8 @@ class WorkoutRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertWorkout(workout: Workout) = dao.insertWorkout(workout)
-
+    override suspend fun updateWorkout(workout: Workout) = dao.updateWorkout(workout)
     override suspend fun deleteWorkout(workout: Workout) = dao.deleteWorkout(workout)
+    override suspend fun getLatestWorkoutForExercise(name: String) = dao.getLatestWorkoutForExercise(name)
+    override suspend fun getWorkoutById(id: Int) = dao.getWorkoutById(id)
 }

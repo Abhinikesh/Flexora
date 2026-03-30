@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flexora.domain.model.Workout
 import com.example.flexora.domain.repository.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,10 +34,28 @@ class WorkoutViewModel @Inject constructor(
     private val _duration = mutableStateOf("")
     val duration: State<String> = _duration
 
-    fun onExerciseNameChange(value: String) { _exerciseName.value = value }
+    private val _suggestion = mutableStateOf<String?>(null)
+    val suggestion: State<String?> = _suggestion
+
+    fun onExerciseNameChange(value: String) { 
+        _exerciseName.value = value 
+        updateSuggestion(value)
+    }
     fun onSetsChange(value: String) { _sets.value = value }
     fun onRepsChange(value: String) { _reps.value = value }
     fun onDurationChange(value: String) { _duration.value = value }
+
+    private fun updateSuggestion(name: String) {
+        viewModelScope.launch {
+            val latest = repository.getLatestWorkoutForExercise(name)
+            latest?.let {
+                val suggestedReps = (it.reps * 1.1).toInt().coerceAtLeast(it.reps + 1)
+                _suggestion.value = "Last time you did ${it.reps} reps. Try ${suggestedReps} today!"
+            } ?: run {
+                _suggestion.value = null
+            }
+        }
+    }
 
     fun saveWorkout(onComplete: () -> Unit) {
         viewModelScope.launch {
@@ -47,11 +63,21 @@ class WorkoutViewModel @Inject constructor(
                 exerciseName = _exerciseName.value,
                 sets = _sets.value.toIntOrNull() ?: 0,
                 reps = _reps.value.toIntOrNull() ?: 0,
-                durationMinutes = _duration.value.toIntOrNull() ?: 0,
-                notes = ""
+                durationMinutes = _duration.value.toIntOrNull() ?: 0
             )
             repository.insertWorkout(workout)
             onComplete()
+        }
+    }
+
+    fun updateProgress(workout: Workout, completedReps: Int, completedSets: Int) {
+        viewModelScope.launch {
+            val updated = workout.copy(
+                completedReps = completedReps,
+                completedSets = completedSets,
+                isCompleted = completedSets >= workout.sets
+            )
+            repository.updateWorkout(updated)
         }
     }
 }

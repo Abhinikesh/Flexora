@@ -5,26 +5,32 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.flexora.domain.model.Workout
 import com.example.flexora.ui.components.PremiumCard
 import com.example.flexora.ui.components.StatCard
 import com.example.flexora.ui.theme.PrimaryPurple
+import com.example.flexora.ui.theme.SuccessGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    onNavigateToAddWorkout: () -> Unit
+    onNavigateToAddWorkout: () -> Unit,
+    todayWorkouts: List<Workout>,
+    suggestion: String?,
+    onUpdateProgress: (Workout, Int, Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -68,6 +74,21 @@ fun DashboardScreen(
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // Smart Suggestion
+            suggestion?.let {
+                item {
+                    PremiumCard(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Lightbulb, null, tint = Color(0xFFFFC107))
+                            Spacer(Modifier.width(12.dp))
+                            Text(it, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
+            }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -75,7 +96,7 @@ fun DashboardScreen(
                 ) {
                     StatCard(
                         label = "Workouts",
-                        value = "12",
+                        value = todayWorkouts.size.toString(),
                         icon = Icons.Default.FitnessCenter,
                         modifier = Modifier.weight(1f)
                     )
@@ -89,26 +110,6 @@ fun DashboardScreen(
             }
 
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    StatCard(
-                        label = "Time Spent",
-                        value = "8.5h",
-                        icon = Icons.Default.Timer,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label = "History",
-                        value = "24",
-                        icon = Icons.Default.History,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            item {
                 Text(
                     "Today's Activity",
                     style = MaterialTheme.typography.titleLarge,
@@ -116,46 +117,85 @@ fun DashboardScreen(
                 )
             }
 
-            val todayWorkouts = listOf(
-                WorkoutItemData("Morning Yoga", "45 min", "Low Intensity"),
-                WorkoutItemData("Chest & Triceps", "1h 20m", "High Intensity"),
-                WorkoutItemData("Evening Walk", "30 min", "Medium Intensity")
-            )
-
             items(todayWorkouts) { workout ->
-                WorkoutCard(workout)
+                TrackingWorkoutCard(workout, onUpdateProgress)
+            }
+            
+            if (todayWorkouts.isEmpty()) {
+                item {
+                    Text(
+                        "No workouts yet. Start your journey today!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
             }
         }
     }
 }
 
-data class WorkoutItemData(val name: String, val duration: String, val intensity: String)
-
 @Composable
-fun WorkoutCard(workout: WorkoutItemData) {
+fun TrackingWorkoutCard(workout: Workout, onUpdateProgress: (Workout, Int, Int) -> Unit) {
     PremiumCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    workout.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "${workout.duration} • ${workout.intensity}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        workout.exerciseName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "${workout.sets} sets • ${workout.reps} reps",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+                if (workout.isCompleted) {
+                    Icon(Icons.Default.Check, null, tint = SuccessGreen)
+                }
             }
-            Icon(
-                imageVector = Icons.Default.FitnessCenter,
-                contentDescription = null,
-                tint = PrimaryPurple
+
+            // Progress Bar
+            val progress = workout.completedSets.toFloat() / workout.sets.toFloat()
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth().height(8.dp),
+                color = PrimaryPurple,
+                trackColor = PrimaryPurple.copy(alpha = 0.1f)
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Sets: ${workout.completedSets} / ${workout.sets}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilledTonalButton(
+                        onClick = { 
+                            if (workout.completedSets < workout.sets) {
+                                onUpdateProgress(workout, workout.completedReps + workout.reps, workout.completedSets + 1)
+                            }
+                        },
+                        enabled = !workout.isCompleted,
+                        shape = MaterialTheme.shapes.medium,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Text("+ Set")
+                    }
+                }
+            }
         }
     }
 }

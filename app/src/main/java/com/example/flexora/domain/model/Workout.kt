@@ -2,7 +2,6 @@ package com.example.flexora.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "workouts")
 data class Workout(
@@ -10,8 +9,10 @@ data class Workout(
     val exerciseName: String,
     val sets: Int,
     val reps: Int,
+    val completedReps: Int = 0,
+    val completedSets: Int = 0,
     val durationMinutes: Int,
-    val notes: String,
+    val notes: String = "",
     val date: Long = System.currentTimeMillis(),
     val isCompleted: Boolean = false
 )

@@ -2,6 +2,7 @@ package com.example.flexora.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -11,6 +12,7 @@ sealed class Screen(val route: String, val title: String = "", val icon: ImageVe
     object Login : Screen("login")
     object Register : Screen("register")
     object Dashboard : Screen("dashboard", "Home", Icons.Default.Home)
+    object Analytics : Screen("analytics", "Analytics", Icons.Default.BarChart)
     object WorkoutHistory : Screen("history", "History", Icons.Default.History)
     object Profile : Screen("profile", "Profile", Icons.Default.Person)
     object AddWorkout : Screen("add_workout", "Add", Icons.Default.Add)
@@ -18,6 +20,7 @@ sealed class Screen(val route: String, val title: String = "", val icon: ImageVe
 
 val bottomNavItems = listOf(
     Screen.Dashboard,
+    Screen.Analytics,
     Screen.WorkoutHistory,
     Screen.Profile
 )

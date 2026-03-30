@@ -12,9 +12,18 @@ interface WorkoutDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkout(workout: Workout)
 
+    @Update
+    suspend fun updateWorkout(workout: Workout)
+
     @Delete
     suspend fun deleteWorkout(workout: Workout)
 
     @Query("SELECT * FROM workouts WHERE date >= :startOfDay")
     fun getTodayWorkouts(startOfDay: Long): Flow<List<Workout>>
+
+    @Query("SELECT * FROM workouts WHERE exerciseName = :name ORDER BY date DESC LIMIT 1")
+    suspend fun getLatestWorkoutForExercise(name: String): Workout?
+
+    @Query("SELECT * FROM workouts WHERE id = :id")
+    suspend fun getWorkoutById(id: Int): Workout?
 }
