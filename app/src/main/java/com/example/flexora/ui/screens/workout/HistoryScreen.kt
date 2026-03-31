@@ -1,5 +1,6 @@
 package com.example.flexora.ui.screens.workout
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,12 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.flexora.domain.model.Workout
 import com.example.flexora.ui.components.PremiumCard
 import com.example.flexora.ui.theme.PrimaryPurple
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(workouts: List<Workout>) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -34,14 +38,6 @@ fun HistoryScreen() {
             )
         }
     ) { padding ->
-        val historyItems = listOf(
-            HistoryItem("Leg Day", "12 Nov 2024", "1h 10m", "6 Exercises"),
-            HistoryItem("Full Body", "10 Nov 2024", "55 min", "8 Exercises"),
-            HistoryItem("Push Day", "08 Nov 2024", "1h 05m", "5 Exercises"),
-            HistoryItem("Pull Day", "06 Nov 2024", "1h 15m", "7 Exercises"),
-            HistoryItem("Cardio & Core", "04 Nov 2024", "45 min", "4 Exercises")
-        )
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,17 +45,18 @@ fun HistoryScreen() {
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(historyItems) { item ->
+            items(workouts, key = { it.id }) { item ->
                 HistoryCard(item)
             }
         }
     }
 }
 
-data class HistoryItem(val name: String, val date: String, val duration: String, val exercises: String)
-
 @Composable
-fun HistoryCard(item: HistoryItem) {
+fun HistoryCard(item: Workout) {
+    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    val dateString = sdf.format(Date(item.date))
+
     PremiumCard {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -84,19 +81,19 @@ fun HistoryCard(item: HistoryItem) {
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    item.name,
+                    item.exerciseName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "${item.exercises} • ${item.duration}",
+                    "${item.sets} sets • ${item.durationMinutes} min",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
             
             Text(
-                item.date,
+                dateString,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
             )

@@ -101,11 +101,17 @@ fun FlexoraNavGraph() {
             }
             composable(Screen.Dashboard.route) {
                 val todayWorkouts by workoutViewModel.todayWorkouts.collectAsState()
+                val totalWorkouts by workoutViewModel.totalWorkoutsCount.collectAsState()
+                val timeSpent by workoutViewModel.totalTimeSpent.collectAsState()
+                val streak by workoutViewModel.currentStreak.collectAsState()
                 val suggestion by workoutViewModel.suggestion
                 
                 DashboardScreen(
                     onNavigateToAddWorkout = { navController.navigate(Screen.AddWorkout.route) },
                     todayWorkouts = todayWorkouts,
+                    totalWorkouts = totalWorkouts,
+                    timeSpent = timeSpent,
+                    streak = streak,
                     suggestion = suggestion,
                     onUpdateProgress = { workout, reps, sets ->
                         workoutViewModel.updateProgress(workout, reps, sets)
@@ -117,7 +123,8 @@ fun FlexoraNavGraph() {
                 AnalyticsScreen(workouts = allWorkouts)
             }
             composable(Screen.WorkoutHistory.route) {
-                HistoryScreen()
+                val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
+                HistoryScreen(workouts = allWorkouts)
             }
             composable(Screen.Profile.route) {
                 val isDark by themeViewModel.isDarkMode.collectAsState()
@@ -128,7 +135,11 @@ fun FlexoraNavGraph() {
             }
             composable(Screen.AddWorkout.route) {
                 AddWorkoutScreen(
-                    onWorkoutSaved = { navController.popBackStack() },
+                    onWorkoutSaved = { 
+                        workoutViewModel.saveWorkout {
+                            navController.popBackStack()
+                        }
+                    },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
