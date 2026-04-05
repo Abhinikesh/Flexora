@@ -144,10 +144,6 @@ Android Developer | Kotlin Enthusiast
 
 ---
 
-## 📄 License
-
----
-
 <div align="center">
 
 Made with ❤️ using Kotlin & Android Studio
