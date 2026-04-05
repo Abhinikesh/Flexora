@@ -1,1 +1,5 @@
-![image alt](https://github.com/Abhinikesh/Flexora/blob/1e74411394ce7e31479bc4daa619295a3d5a646e/screenshots/login.png)
+## 📸 Screenshots
+
+| Home | Analytics | History | Add Workout | Login |
+|------|-----------|---------|-------------|-------|
+| <img src="screenshots/home.png" width="180"/> | <img src="screenshots/analytics.png" width="180"/> | <img src="screenshots/history.png" width="180"/> | <img src="screenshots/add_workout.png" width="180"/> | <img src="screenshots/login.png" width="180"/> |
