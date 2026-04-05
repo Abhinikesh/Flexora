@@ -10,6 +10,10 @@ data class WorkoutEntity(
     val name: String,
     val sets: Int,
     val reps: Int,
-    val duration: String,
-    val timestamp: Long
+    val completedReps: Int = 0,
+    val completedSets: Int = 0,
+    val duration: Int,
+    val notes: String = "",
+    val timestamp: Long,
+    val isCompleted: Boolean = false
 )
