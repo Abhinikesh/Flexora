@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="screenshots/login.png" width="180"/>
+<img src="screenshots/home.png" width="180"/>
 
 # 💪 Flexora
 ### Smart Workout Tracker — Built for Athletes, Designed for Everyone
