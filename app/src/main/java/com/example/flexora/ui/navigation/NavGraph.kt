@@ -104,7 +104,7 @@ fun FlexoraNavGraph() {
                 val totalWorkouts by workoutViewModel.totalWorkoutsCount.collectAsState()
                 val timeSpent by workoutViewModel.totalTimeSpent.collectAsState()
                 val streak by workoutViewModel.currentStreak.collectAsState()
-                val suggestion by workoutViewModel.suggestion
+                val suggestion by workoutViewModel.dashboardSuggestion.collectAsState()
                 
                 DashboardScreen(
                     onNavigateToAddWorkout = { navController.navigate(Screen.AddWorkout.route) },
@@ -120,7 +120,13 @@ fun FlexoraNavGraph() {
             }
             composable(Screen.Analytics.route) {
                 val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
-                AnalyticsScreen(workouts = allWorkouts)
+                val totalReps by workoutViewModel.totalReps.collectAsState()
+                val averageDuration by workoutViewModel.averageDuration.collectAsState()
+                AnalyticsScreen(
+                    workouts = allWorkouts,
+                    totalReps = totalReps,
+                    averageDuration = averageDuration
+                )
             }
             composable(Screen.WorkoutHistory.route) {
                 val allWorkouts by workoutViewModel.allWorkouts.collectAsState()
