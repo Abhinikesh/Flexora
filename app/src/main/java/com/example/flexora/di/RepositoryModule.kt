@@ -1,6 +1,8 @@
 package com.example.flexora.di
 
+import com.example.flexora.data.repository.UserRepositoryImpl
 import com.example.flexora.data.repository.WorkoutRepositoryImpl
+import com.example.flexora.domain.repository.UserRepository
 import com.example.flexora.domain.repository.WorkoutRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun bindWorkoutRepository(
         workoutRepositoryImpl: WorkoutRepositoryImpl
     ): WorkoutRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        userRepositoryImpl: UserRepositoryImpl
+    ): UserRepository
 }

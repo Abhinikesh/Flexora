@@ -3,6 +3,7 @@ package com.example.flexora.di
 import android.content.Context
 import androidx.room.Room
 import com.example.flexora.data.local.AppDatabase
+import com.example.flexora.data.local.dao.UserDao
 import com.example.flexora.data.local.dao.WorkoutDao
 import dagger.Module
 import dagger.Provides
@@ -22,11 +23,18 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "flexora_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
     fun provideWorkoutDao(database: AppDatabase): WorkoutDao {
         return database.workoutDao()
+    }
+
+    @Provides
+    fun provideUserDao(database: AppDatabase): UserDao {
+        return database.userDao()
     }
 }

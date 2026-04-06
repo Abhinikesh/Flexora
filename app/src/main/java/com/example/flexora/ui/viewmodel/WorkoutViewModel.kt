@@ -73,35 +73,57 @@ class WorkoutViewModel @Inject constructor(
     fun onRepsChange(value: String) { _reps.value = value }
     fun onDurationChange(value: String) { _duration.value = value }
 
-    fun saveWorkout(onComplete: () -> Unit) {
+    fun addWorkout(workout: Workout) {
         viewModelScope.launch {
-            if (_exerciseName.value.isBlank()) return@launch
-            
-            val workout = Workout(
-                exerciseName = _exerciseName.value,
-                sets = _sets.value.toIntOrNull() ?: 0,
-                reps = _reps.value.toIntOrNull() ?: 0,
-                durationMinutes = _duration.value.toIntOrNull() ?: 0
-            )
             repository.insertWorkout(workout)
-            // Reset form
-            _exerciseName.value = ""
-            _sets.value = ""
-            _reps.value = ""
-            _duration.value = ""
-            onComplete()
         }
     }
 
-    // 4. Live Set Completion Tracker
-    fun updateProgress(workout: Workout, completedReps: Int, completedSets: Int) {
-        viewModelScope.launch {
-            val updated = workout.copy(
-                completedReps = completedReps,
-                completedSets = completedSets,
-                isCompleted = completedSets >= workout.sets
+    fun saveWorkout(onSuccess: () -> Unit) {
+        val name = _exerciseName.value
+        val setsCount = _sets.value.toIntOrNull() ?: 0
+        val repsCount = _reps.value.toIntOrNull() ?: 0
+        val durationMin = _duration.value.toIntOrNull() ?: 0
+
+        if (name.isNotBlank() && setsCount > 0 && repsCount > 0) {
+            val workout = Workout(
+                exerciseName = name,
+                sets = setsCount,
+                reps = repsCount,
+                durationMinutes = durationMin
             )
-            repository.updateWorkout(updated)
+            viewModelScope.launch {
+                repository.insertWorkout(workout)
+                onSuccess()
+                // Clear form
+                _exerciseName.value = ""
+                _sets.value = ""
+                _reps.value = ""
+                _duration.value = ""
+            }
+        }
+    }
+
+    fun deleteWorkout(workout: Workout) {
+        viewModelScope.launch {
+            repository.deleteWorkout(workout)
+        }
+    }
+
+    fun updateWorkout(workout: Workout) {
+        viewModelScope.launch {
+            repository.updateWorkout(workout)
+        }
+    }
+
+    fun updateProgress(workout: Workout, reps: Int, sets: Int) {
+        viewModelScope.launch {
+            val updatedWorkout = workout.copy(
+                completedReps = reps,
+                completedSets = sets,
+                isCompleted = reps >= workout.reps && sets >= workout.sets
+            )
+            repository.updateWorkout(updatedWorkout)
         }
     }
 

@@ -24,6 +24,7 @@ import com.example.flexora.ui.screens.workout.AddWorkoutScreen
 import com.example.flexora.ui.screens.workout.HistoryScreen
 import com.example.flexora.ui.theme.PrimaryPurple
 import com.example.flexora.ui.viewmodel.ThemeViewModel
+import com.example.flexora.ui.viewmodel.UserViewModel
 import com.example.flexora.ui.viewmodel.WorkoutViewModel
 
 @Composable
@@ -134,9 +135,15 @@ fun FlexoraNavGraph() {
             }
             composable(Screen.Profile.route) {
                 val isDark by themeViewModel.isDarkMode.collectAsState()
+                val userViewModel: UserViewModel = hiltViewModel()
+                val user by userViewModel.user.collectAsState()
+                
                 ProfileScreen(
                     isDarkMode = isDark ?: false,
-                    onToggleDarkMode = { themeViewModel.toggleDarkMode(it) }
+                    onToggleDarkMode = { themeViewModel.toggleDarkMode(it) },
+                    user = user,
+                    onUpdateName = { newName -> userViewModel.updateName(newName) },
+                    onUpdateImage = { newUri -> userViewModel.updateProfileImage(newUri) }
                 )
             }
             composable(Screen.AddWorkout.route) {

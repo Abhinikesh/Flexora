@@ -11,7 +11,7 @@ import com.example.flexora.data.local.entity.WorkoutEntity
 
 @Database(
     entities = [WorkoutEntity::class, UserEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

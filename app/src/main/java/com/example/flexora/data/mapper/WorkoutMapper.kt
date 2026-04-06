@@ -9,8 +9,12 @@ fun WorkoutEntity.toWorkout(): Workout {
         exerciseName = name,
         sets = sets,
         reps = reps,
-        durationMinutes = duration.toIntOrNull() ?: 0,
-        date = timestamp
+        completedReps = completedReps,
+        completedSets = completedSets,
+        durationMinutes = duration,
+        notes = notes,
+        date = timestamp,
+        isCompleted = isCompleted
     )
 }
 
@@ -20,7 +24,11 @@ fun Workout.toEntity(): WorkoutEntity {
         name = exerciseName,
         sets = sets,
         reps = reps,
-        duration = durationMinutes.toString(),
-        timestamp = date
+        completedReps = completedReps,
+        completedSets = completedSets,
+        duration = durationMinutes,
+        notes = notes,
+        timestamp = date,
+        isCompleted = isCompleted
     )
 }
